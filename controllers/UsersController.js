@@ -1,8 +1,8 @@
-import dbClient from '../utils/db'
+import dbClient from '../utils/db';
 
 class UsersController {
   static async postNew(req, res) {
-    const { email, password } = req.body
+    const { email, password } = req.body;
     if (!email) {
       res.status(400).send('Missing email');
       res.end();
@@ -11,8 +11,8 @@ class UsersController {
 
     if (!(password)) {
       res.status(400).json({ error: 'Missing password' });
-      res.end(); 
-      return
+      res.end();
+      return;
     }
 
     const user = await dbClient.getUserbyEmail(email);
@@ -28,4 +28,4 @@ class UsersController {
   }
 }
 
-export default UsersController
+export default UsersController;
