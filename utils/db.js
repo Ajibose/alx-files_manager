@@ -1,4 +1,5 @@
 import { MongoClient } from 'mongodb';
+import { hashedPwd } from './utils';
 
 class DBClient {
   constructor() {
@@ -37,6 +38,29 @@ class DBClient {
       console.error('Error counting documents', e);
       return null;
     }
+  }
+
+  async getUserbyEmail(email) {
+    if (!(email)) {
+      return null;
+    }
+
+    const users = await this.client.db(this.db).collection('users').find({ email }).toArray();
+    if (!users.length) {
+      return null;
+    }
+
+    return users[0];
+  }
+
+  async createUser(email, password) {
+    if (!email && !password) {
+      return null;
+    }
+
+    const pwdHashed = hashedPwd(password);
+    const user = await this.client.db(this.db).collection('users').insertOne({ email, password: pwdHashed });
+    return user;
   }
 }
 
