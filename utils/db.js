@@ -1,4 +1,4 @@
-import MongoClient from 'mongodb';
+import { MongoClient } from 'mongodb';
 
 class DBClient {
   constructor() {
@@ -6,7 +6,12 @@ class DBClient {
     const dbPORT = process.env.DB_PORT || 27017;
     this.db = process.env.DB_DATABASE || 'files_manager';
 
-    this.client = new MongoClient(`mongodb://${dbHOST}:${dbPORT}`);
+    this.client = new MongoClient(
+      `mongodb://${dbHOST}:${dbPORT}`,
+      { useNewUrlParser: true, useUnifiedTopology: true },
+    );
+
+    this.client.connect();
   }
 
   isAlive() {
@@ -16,7 +21,7 @@ class DBClient {
 
   async nbUsers() {
     try {
-      const userCount = await this.client.db(this.db).collection('users').countDocuments();
+      const userCount = await this.client.db().collection('users').countDocuments();
       return userCount;
     } catch (e) {
       console.error('Error counting documents', e);
@@ -26,7 +31,7 @@ class DBClient {
 
   async nbFiles() {
     try {
-      const fileCount = await this.client.db(this.db).collection('files').countDocuments();
+      const fileCount = await this.client.db().collection('files').countDocuments();
       return fileCount;
     } catch (e) {
       console.error('Error counting documents', e);
