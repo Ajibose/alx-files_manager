@@ -1,19 +1,22 @@
-/* eslint-disable import/no-named-as-default */
-import redisClient from '../utils/redis';
 import dbClient from '../utils/db';
+import redisClient from '../utils/redis';
 
-export default class AppController {
-  static getStatus(req, res) {
-    res.status(200).json({
-      redis: redisClient.isAlive(),
-      db: dbClient.isAlive(),
-    });
+export function getStatus(req, res) {
+  if (dbClient.isAlive() && redisClient.isAlive()) {
+    res.status(200).json({ redis: true, db: true });
+    res.end();
+    return;
   }
+  res.status(500).send('Connection to database error');
+}
 
-  static getStats(req, res) {
-    Promise.all([dbClient.nbUsers(), dbClient.nbFiles()])
-      .then(([usersCount, filesCount]) => {
-        res.status(200).json({ users: usersCount, files: filesCount });
-      });
+export async function getStats(req, res) {
+  if (!(dbClient.isAlive())) {
+    res.status(500).send('Connection to database error');
+    res.end();
+    return;
   }
+  const users = await dbClient.nbUsers();
+  const files = await dbClient.nbFiles();
+  res.status(200).json({ users, files });
 }
